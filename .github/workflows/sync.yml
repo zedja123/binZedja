@@ -18,6 +18,6 @@ jobs:
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
           target_repo_token: ${{ secrets.GITHUB_TOKEN }}
-          target_branch: master      # Change to 'master' if your default branch is different
-          upstream_repo: ProjectIgnis/bin # Change to the 'username/repo_name' of the original project
-          upstream_branch: master    # Change to the upstream branch you want to pull from
+          target_sync_branch: master      # Change to 'master' if your default branch is different
+          upstream_sync_repo: ProjectIgnis/bin # Change to the 'username/repo_name' of the original project
+          upstream_sync_branch: master    # Change to the upstream branch you want to pull from
