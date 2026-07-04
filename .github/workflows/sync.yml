@@ -17,12 +17,26 @@ jobs:
           token: ${{ secrets.SYNC_PAT }}
 
       - name: Mirror upstream
-        run: |
-          git remote add upstream https://github.com/ProjectIgnis/bin.git
+  run: |
+    git remote add upstream https://github.com/ProjectIgnis/bin.git || true
+    git fetch upstream
 
-          git fetch upstream
+    # Save your workflows
+    mkdir -p /tmp/workflows
+    cp -r .github/workflows /tmp/workflows 2>/dev/null || true
 
-          git checkout master
-          git reset --hard upstream/master
+    # Mirror upstream
+    git reset --hard upstream/master
 
-          git push --force origin master
+    # Restore your workflows
+    rm -rf .github/workflows
+    mkdir -p .github
+    cp -r /tmp/workflows .github/ 2>/dev/null || true
+
+    git add .github/workflows
+
+    if ! git diff --cached --quiet; then
+      git commit -m "Restore local workflows"
+    fi
+
+    git push --force origin master
