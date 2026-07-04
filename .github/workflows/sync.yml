@@ -2,8 +2,11 @@ name: Mirror Upstream
 
 on:
   schedule:
-    - cron: '0 * * * *'   # Every hour
+    - cron: "0 * * * *" # Every hour
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   mirror:
@@ -13,30 +16,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           token: ${{ secrets.SYNC_PAT }}
+          fetch-depth: 0
 
-      - name: Mirror upstream
-  run: |
-    git remote add upstream https://github.com/ProjectIgnis/bin.git || true
-    git fetch upstream
+      - name: Mirror upstream while preserving workflows
+        run: |
+          git remote add upstream https://github.com/ProjectIgnis/bin.git || true
+          git fetch upstream
 
-    # Save your workflows
-    mkdir -p /tmp/workflows
-    cp -r .github/workflows /tmp/workflows 2>/dev/null || true
+          # Save local workflows
+          mkdir -p /tmp/workflows
+          cp -r .github/workflows /tmp/workflows 2>/dev/null || true
 
-    # Mirror upstream
-    git reset --hard upstream/master
+          # Mirror upstream
+          git checkout master
+          git reset --hard upstream/master
 
-    # Restore your workflows
-    rm -rf .github/workflows
-    mkdir -p .github
-    cp -r /tmp/workflows .github/ 2>/dev/null || true
+          # Restore local workflows
+          rm -rf .github/workflows
+          mkdir -p .github
+          cp -r /tmp/workflows .github/ 2>/dev/null || true
 
-    git add .github/workflows
+          git add .github/workflows
 
-    if ! git diff --cached --quiet; then
-      git commit -m "Restore local workflows"
-    fi
+          if ! git diff --cached --quiet; then
+            git commit -m "Restore local workflows"
+          fi
 
-    git push --force origin master
+          git push --force origin master
