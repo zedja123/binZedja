@@ -21,6 +21,8 @@ jobs:
 
       - name: Mirror upstream while preserving workflows
         run: |
+	  git config user.name "github-actions[bot]"
+	  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/ProjectIgnis/bin.git || true
           git fetch upstream
 
@@ -40,7 +42,7 @@ jobs:
           git add .github/workflows
 
           if ! git diff --cached --quiet; then
-            git commit -m "Restore local workflows"
+            git commit --amend --no-edit
           fi
 
           git push --force origin master
